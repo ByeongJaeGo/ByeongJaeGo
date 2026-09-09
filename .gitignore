@@ -8,6 +8,8 @@ out_weekly_*.csv
 out_optimize_*.csv
 out_optimize_*.json
 out_top100_*.csv
+out_friday_*.csv
+out_confirm_*.csv
 cache_ohlcv*/
 *.egg-info/
 .DS_Store
