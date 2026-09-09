@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 venv/
 out_signals/
+out_top100_*.csv
 *.egg-info/
 .DS_Store
 .netlify/
