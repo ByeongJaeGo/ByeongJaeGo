@@ -1,17 +1,20 @@
 # ByeongJaeGo — MFI + Bollinger Swing
 
-## 추천: 주 1회 + 확정조건 (변수↓)
+## 추천: BB/%b/MFI/Bandwidth만으로 가장 확실한 매수·매도
 
-BB/%b/MFI만 쓰면 흔들립니다. **거래량·RSI·주봉MFI·추세필터**를 붙이세요.  
-상세: **[BEST_CONFIRMED_METHOD.md](BEST_CONFIRMED_METHOD.md)**
+상세: **[BEST_BB_UPTREND_METHOD.md](BEST_BB_UPTREND_METHOD.md)**
 
 ```bash
-python3 run_friday_confirmed.py --grade A --compare
+python3 run_bb_uptrend_best.py --mode certain   # 가장 확실
+python3 run_bb_uptrend_best.py --mode balanced  # 신호 더 많음
 ```
 
-- **A급**: 기본 + 거래량1.5 + RSI≤30 + 주MFI\<60 + 하락배열 제외 → 확실  
-- **B급**: 기본 + 거래량1.5만 → 수익 유지하면서 최악월 완화  
-- **C급**: 기본만 → 비추천(변수 큼)
+- **매수:** `%b≤0.25` + `MFI(14)<20` + MFI 상승 전환  
+- **매도:** `%b≥0.85 & MFI≥80` / %b 트레일 / -10% / 최대 3주  
+
+## 추가 필터 (거래량·RSI 등)
+
+**[BEST_CONFIRMED_METHOD.md](BEST_CONFIRMED_METHOD.md)** — `run_friday_confirmed.py --grade A|B`
 
 ## 일봉·주1회 기본판
 
