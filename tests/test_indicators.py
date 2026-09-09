@@ -5,8 +5,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from backtest.indicators import add_indicators, bollinger_bands, money_flow_index
-from backtest.strategy import StrategyParams, generate_signals
+from backtest.indicators import add_indicators, add_v2_indicators, bollinger_bands, money_flow_index
+from backtest.strategy import StrategyParams, Top100Params, generate_signals, generate_top100_signals
 
 
 def _synthetic_ohlcv(n: int = 300, seed: int = 42) -> pd.DataFrame:
@@ -28,7 +28,6 @@ def test_percent_b_bounds_typical():
     bands = bollinger_bands(df["Close"])
     valid = bands["percent_b"].dropna()
     assert len(valid) > 200
-    # Most values should sit roughly in [-0.5, 1.5]
     assert valid.between(-1, 2).mean() > 0.95
 
 
@@ -45,3 +44,20 @@ def test_signals_columns_exist():
     sig = generate_signals(df, StrategyParams(require_trend_filter=False))
     for col in ("buy", "sell", "entry_ready", "sell_zone", "percent_b", "mfi"):
         assert col in sig.columns
+
+
+def test_v2_indicators_and_top100_signals():
+    df = add_v2_indicators(_synthetic_ohlcv(400))
+    for col in (
+        "mfi_6",
+        "mfi_13",
+        "weekly_mfi_6",
+        "percent_b_8",
+        "percent_b_14",
+        "percent_b_20",
+        "pb_lt0_count",
+    ):
+        assert col in df.columns
+    sig = generate_top100_signals(df, Top100Params(daily_mfi_max=20))
+    assert "buy" in sig.columns
+    assert sig["pb_lt0_count"].max() <= 3

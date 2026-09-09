@@ -4,6 +4,15 @@ __pycache__/
 .venv/
 venv/
 out_signals/
+out_weekly_*.csv
+out_optimize_*.csv
+out_optimize_*.json
+out_top100_*.csv
+out_friday_*.csv
+out_confirm_*.csv
+cache_ohlcv*/
 *.egg-info/
 .DS_Store
 .netlify/
+out_bb_*.csv
+out_user_*.csv
