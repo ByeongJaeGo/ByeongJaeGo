@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 import pandas as pd
 
-from .strategy import StrategyParams, generate_signals
+from .strategy import StrategyParams, Top100Params, generate_signals, generate_top100_signals
 
 
 @dataclass
@@ -33,7 +33,8 @@ class BacktestResult:
     trades: list[Trade] = field(default_factory=list)
     equity_curve: pd.Series | None = None
     buy_hold_return_pct: float = 0.0
-    params: StrategyParams | None = None
+    params: Any = None
+    name: str = ""
 
     @property
     def closed_trades(self) -> list[Trade]:
@@ -42,42 +43,49 @@ class BacktestResult:
     def summary(self) -> dict[str, Any]:
         closed = self.closed_trades
         rets = [t.return_pct for t in closed if t.return_pct is not None]
+        base = {
+            "ticker": self.ticker,
+            "name": self.name,
+            "trades": 0,
+            "wins": 0,
+            "losses": 0,
+            "win_rate_pct": None,
+            "avg_return_pct": None,
+            "median_return_pct": None,
+            "total_return_pct": 0.0,
+            "sum_return_pct": 0.0,
+            "max_drawdown_pct": None,
+            "avg_bars_held": None,
+            "buy_hold_return_pct": round(self.buy_hold_return_pct, 2),
+            "vs_buy_hold_pct": None,
+        }
         if not rets:
-            return {
-                "ticker": self.ticker,
-                "trades": 0,
-                "win_rate_pct": None,
-                "avg_return_pct": None,
-                "total_return_pct": 0.0,
-                "max_drawdown_pct": None,
-                "avg_bars_held": None,
-                "buy_hold_return_pct": round(self.buy_hold_return_pct, 2),
-                "vs_buy_hold_pct": None,
-            }
+            return base
 
         wins = sum(1 for r in rets if r > 0)
-        # Compound sequential full-position trades
         equity = 1.0
         peak = 1.0
         max_dd = 0.0
-        curve = []
         for r in rets:
             equity *= 1.0 + r / 100.0
             peak = max(peak, equity)
             dd = (equity / peak - 1.0) * 100.0
             max_dd = min(max_dd, dd)
-            curve.append(equity)
 
         total_return = (equity - 1.0) * 100.0
         return {
             "ticker": self.ticker,
+            "name": self.name,
             "trades": len(rets),
+            "wins": wins,
+            "losses": len(rets) - wins,
             "win_rate_pct": round(100.0 * wins / len(rets), 1),
             "avg_return_pct": round(float(np.mean(rets)), 2),
             "median_return_pct": round(float(np.median(rets)), 2),
             "best_trade_pct": round(float(np.max(rets)), 2),
             "worst_trade_pct": round(float(np.min(rets)), 2),
             "total_return_pct": round(total_return, 2),
+            "sum_return_pct": round(float(np.sum(rets)), 2),
             "max_drawdown_pct": round(max_dd, 2),
             "avg_bars_held": round(float(np.mean([t.bars_held for t in closed])), 1),
             "buy_hold_return_pct": round(self.buy_hold_return_pct, 2),
@@ -85,20 +93,15 @@ class BacktestResult:
         }
 
 
-def run_backtest(
-    df: pd.DataFrame,
+def _run_on_signals(
+    signalled: pd.DataFrame,
     ticker: str,
-    params: StrategyParams | None = None,
-    max_hold_bars: int = 60,
+    stop_below_entry_low: bool,
+    max_hold_bars: int,
+    name: str = "",
+    params: Any = None,
 ) -> BacktestResult:
-    """
-    Long-only: enter at next open after buy signal, exit at next open after sell/stop.
-    Falls back to same-bar close if Open is missing.
-    """
-    params = params or StrategyParams()
-    signalled = generate_signals(df, params)
-    result = BacktestResult(ticker=ticker, params=params)
-
+    result = BacktestResult(ticker=ticker, params=params, name=name)
     if len(signalled) < 2:
         return result
 
@@ -126,9 +129,8 @@ def run_backtest(
             continue
 
         bars_in_trade += 1
-        # Swing stop: close below setup low (ignore intraday wicks)
         stop_hit = False
-        if params.stop_below_entry_low and pd.notna(entry_low) and bars_in_trade >= 1:
+        if stop_below_entry_low and pd.notna(entry_low) and bars_in_trade >= 1:
             if float(row["Close"]) < entry_low:
                 stop_hit = True
 
@@ -150,7 +152,6 @@ def run_backtest(
             entry_low = np.nan
             bars_in_trade = 0
 
-    # Force close open position at last close
     if position is not None:
         position.exit_date = signalled.index[-1]
         position.exit_price = float(signalled["Close"].iloc[-1])
@@ -158,5 +159,74 @@ def run_backtest(
         position.bars_held = bars_in_trade
         result.trades.append(position)
 
-    result.equity_curve = None
     return result
+
+
+def run_backtest(
+    df: pd.DataFrame,
+    ticker: str,
+    params: StrategyParams | None = None,
+    max_hold_bars: int = 60,
+) -> BacktestResult:
+    params = params or StrategyParams()
+    signalled = generate_signals(df, params)
+    return _run_on_signals(
+        signalled,
+        ticker=ticker,
+        stop_below_entry_low=params.stop_below_entry_low,
+        max_hold_bars=max_hold_bars,
+        params=params,
+    )
+
+
+def run_top100_backtest(
+    df: pd.DataFrame,
+    ticker: str,
+    params: Top100Params | None = None,
+    max_hold_bars: int = 60,
+    name: str = "",
+) -> BacktestResult:
+    params = params or Top100Params()
+    signalled = generate_top100_signals(df, params)
+    return _run_on_signals(
+        signalled,
+        ticker=ticker,
+        stop_below_entry_low=params.stop_below_entry_low,
+        max_hold_bars=max_hold_bars,
+        name=name,
+        params=params,
+    )
+
+
+def aggregate_summaries(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Pool all per-ticker trade stats into one portfolio-style summary."""
+    traded = [r for r in rows if r.get("trades")]
+    if not traded:
+        return {
+            "tickers_tested": len(rows),
+            "tickers_with_trades": 0,
+            "trades": 0,
+            "win_rate_pct": None,
+            "avg_return_pct": None,
+            "median_ticker_total_return_pct": None,
+            "avg_ticker_total_return_pct": None,
+        }
+
+    total_trades = sum(int(r["trades"]) for r in traded)
+    total_wins = sum(int(r.get("wins") or 0) for r in traded)
+    # Average of per-trade means weighted by trade count
+    weighted_avg = sum(float(r["avg_return_pct"]) * int(r["trades"]) for r in traded) / total_trades
+    ticker_totals = [float(r["total_return_pct"]) for r in traded]
+    return {
+        "tickers_tested": len(rows),
+        "tickers_with_trades": len(traded),
+        "trades": total_trades,
+        "wins": total_wins,
+        "losses": total_trades - total_wins,
+        "win_rate_pct": round(100.0 * total_wins / total_trades, 1),
+        "avg_return_pct": round(weighted_avg, 2),
+        "avg_ticker_total_return_pct": round(float(np.mean(ticker_totals)), 2),
+        "median_ticker_total_return_pct": round(float(np.median(ticker_totals)), 2),
+        "best_ticker_total_return_pct": round(float(np.max(ticker_totals)), 2),
+        "worst_ticker_total_return_pct": round(float(np.min(ticker_totals)), 2),
+    }
