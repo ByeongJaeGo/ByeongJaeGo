@@ -14,3 +14,4 @@ cache_ohlcv*/
 *.egg-info/
 .DS_Store
 .netlify/
+out_bb_*.csv
