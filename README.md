@@ -1,15 +1,20 @@
 # ByeongJaeGo — MFI + Bollinger Swing
 
-## 최선 방법 (월 수익 최적화 결과)
+## 주 1회 매매 최선 (권장)
 
-자세한 결론·규칙·성적: **[BEST_SWING_METHOD.md](BEST_SWING_METHOD.md)**
-
-한 줄 요약:
-- **Bandwidth 스퀴즈** + `MFI(6)<20` + `%b≤0.15` → 중심선 익절 / -7% 손절
-- 백테스트 최선 **월평균 ~+5%** (1종목 집중). **평균 월 +20%는 미달성** (640규칙 탐색)
+**주봉 Bandwidth 스퀴즈 → 상방 돌파** (+ MFI 확인)  
+상세·근거: **[BEST_WEEKLY_METHOD.md](BEST_WEEKLY_METHOD.md)**
 
 ```bash
-pip install -r requirements.txt
+python3 run_weekly_best_strategy.py --positions 1
+```
+
+## 일봉 스윙 최선 (참고)
+
+Bandwidth 스퀴즈 + `MFI(6)<20` + `%b≤0.15` → 중심선 익절  
+상세: **[BEST_SWING_METHOD.md](BEST_SWING_METHOD.md)**
+
+```bash
 python3 run_optimize_monthly.py --start 2019-01-01
 python3 run_best_swing.py --positions 1
 ```
