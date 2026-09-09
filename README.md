@@ -1,39 +1,24 @@
 # ByeongJaeGo — MFI + Bollinger Swing
 
-## 주 1회 매매 최선 (권장)
+## 추천: 일봉으로 보고 주 1회만 매매 (수익 최대)
 
-**주봉 Bandwidth 스퀴즈 → 상방 돌파** (+ MFI 확인)  
-상세·근거: **[BEST_WEEKLY_METHOD.md](BEST_WEEKLY_METHOD.md)**
-
-```bash
-python3 run_weekly_best_strategy.py --positions 1
-```
-
-## 일봉 스윙 최선 (참고)
-
-Bandwidth 스퀴즈 + `MFI(6)<20` + `%b≤0.15` → 중심선 익절  
-상세: **[BEST_SWING_METHOD.md](BEST_SWING_METHOD.md)**
+만쥬·수급단타왕처럼 **일봉**을 보되, 매매는 **금요일 1회**.  
+상세: **[BEST_DAILY_WEEKLY_METHOD.md](BEST_DAILY_WEEKLY_METHOD.md)**
 
 ```bash
-python3 run_optimize_monthly.py --start 2019-01-01
-python3 run_best_swing.py --positions 1
+python3 run_friday_daily_best.py --positions 1
 ```
 
----
+규칙 요약: `%b≤0.15` + `MFI(14)<30` → 다음 주 시가 / -10% / 최대 2주  
+백테스트 월평균 **~+5%**, 월 최대 **~+63%** (1종목).
 
-## Top100 이전 규칙 (참고)
+## 주봉만 볼 때
 
-유니버스: 네이버 기준 **코스피+코스닥 거래대금 상위 100** (ETF/우선주 제외).
+스퀴즈 돌파: **[BEST_WEEKLY_METHOD.md](BEST_WEEKLY_METHOD.md)**
 
-| 조건 | 규칙 |
-|------|------|
-| 일봉 MFI | `MFI(6) < 20` **그리고** `MFI(13) < 20` |
-| 주봉 MFI | `MFI(6) < 60` |
-| %b | 8/14/20 중 **2개 이상** `< 0` |
+## 매일 볼 수 있는 일봉 스윙
 
-```bash
-python3 run_top100_backtest.py --also-literal-zero
-```
+**[BEST_SWING_METHOD.md](BEST_SWING_METHOD.md)**
 
 ## 레거시 단일 종목 전략
 
