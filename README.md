@@ -1,24 +1,21 @@
 # ByeongJaeGo — MFI + Bollinger Swing
 
-## 추천: 일봉으로 보고 주 1회만 매매 (수익 최대)
+## 추천: 주 1회 + 확정조건 (변수↓)
 
-만쥬·수급단타왕처럼 **일봉**을 보되, 매매는 **금요일 1회**.  
-상세: **[BEST_DAILY_WEEKLY_METHOD.md](BEST_DAILY_WEEKLY_METHOD.md)**
+BB/%b/MFI만 쓰면 흔들립니다. **거래량·RSI·주봉MFI·추세필터**를 붙이세요.  
+상세: **[BEST_CONFIRMED_METHOD.md](BEST_CONFIRMED_METHOD.md)**
 
 ```bash
-python3 run_friday_daily_best.py --positions 1
+python3 run_friday_confirmed.py --grade A --compare
 ```
 
-규칙 요약: `%b≤0.15` + `MFI(14)<30` → 다음 주 시가 / -10% / 최대 2주  
-백테스트 월평균 **~+5%**, 월 최대 **~+63%** (1종목).
+- **A급**: 기본 + 거래량1.5 + RSI≤30 + 주MFI\<60 + 하락배열 제외 → 확실  
+- **B급**: 기본 + 거래량1.5만 → 수익 유지하면서 최악월 완화  
+- **C급**: 기본만 → 비추천(변수 큼)
 
-## 주봉만 볼 때
+## 일봉·주1회 기본판
 
-스퀴즈 돌파: **[BEST_WEEKLY_METHOD.md](BEST_WEEKLY_METHOD.md)**
-
-## 매일 볼 수 있는 일봉 스윙
-
-**[BEST_SWING_METHOD.md](BEST_SWING_METHOD.md)**
+**[BEST_DAILY_WEEKLY_METHOD.md](BEST_DAILY_WEEKLY_METHOD.md)**
 
 ## 레거시 단일 종목 전략
 
