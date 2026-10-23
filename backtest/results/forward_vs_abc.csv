@@ -1,0 +1,6 @@
+rule,note,mult_2010,mult_2020,geo,both_ok
+FORWARD_MAX(D),양구간+기하평균최대,13.33,65.42,29.53,True
+FORWARD_BALANCED,양구간 비슷(~22x),22.46,20.99,21.71,True
+C_PROB_MAX,거래당확률,2.24,3.45,2.78,True
+A_PRIOR,이전최종,1.02,1.05,1.04,True
+B_EQUITY_MAX,2020잔고최대(비추천),0.12,406.24,6.91,False

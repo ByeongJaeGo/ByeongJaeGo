@@ -1,0 +1,2 @@
+pb_cross,weekly_pb_lo,weekly_pb_hi,bb_width_min,weekly_mfi6_max,close_loc_min,ret1_min,stop_pct,take_profit_pct,max_hold_days,day3_no_up_cut,mult_2010,n_2010,wr_2010,mult_2020,n_2020,wr_2020,both_ok,geo,worst
+0.3,,,,,0.8,0.05,0.1,0.2,20,False,13.328348054646263,166,0.4879518072289157,65.4182014986913,117,0.5555555555555556,True,29.52823324690354,13.328348054646263
