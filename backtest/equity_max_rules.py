@@ -1,5 +1,9 @@
 """Account-equity-maximizing swing rules (KOSDAQ, sequential all-in).
 
+WARNING: This maximizes compounded equity (can be luck/regime heavy).
+For highest *probability* / expectancy among the user's filters, use
+`prob_max_rules.PROB_MAX` instead.
+
 Optimized on wide KOSDAQ OHLCV (2020-01 ~ 2026-10) for **sequential
 compounded equity** (one position at a time, full capital), not average
 trade return.
