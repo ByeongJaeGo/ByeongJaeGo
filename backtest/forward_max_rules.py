@@ -40,6 +40,9 @@ class ForwardMaxParams:
     take_profit_pct: float = 0.20
     day3_no_up_cut: bool = False
     max_hold_days: int = 20
+    # Ops overlay tested separately: day-1 close <= -3% cut.
+    # Rejected for final rule — 2020~ and 2026 sims both lose equity vs no-cut.
+    day1_cut_pct: float | None = None
 
     market: str = "KOSDAQ"
 
